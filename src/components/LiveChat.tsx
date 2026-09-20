@@ -74,44 +74,44 @@ export default function LiveChat({ lang, venueId, venueName }: LiveChatProps) {
   }
 
   return (
-    <div className="bg-[#1a1a1a] rounded-2xl border border-[#3A3A3A] overflow-hidden">
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-[#3A3A3A]">
-        <MessageCircle className="w-4 h-4 text-amber-400" />
-        <h3 className="text-sm font-semibold text-white">{translate(lang, 'liveChat')}</h3>
-        <span className="text-xs text-gray-500">· {venueName}</span>
+    <div className="bg-gray-50 rounded-2xl border border-gray-200 overflow-hidden">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-200">
+        <MessageCircle className="w-4 h-4 text-red-500" />
+        <h3 className="text-sm font-semibold text-gray-900">{translate(lang, 'liveChat')}</h3>
+        <span className="text-xs text-gray-400">· {venueName}</span>
       </div>
 
-      <div ref={scrollRef} className="h-48 overflow-y-auto px-4 py-3 space-y-2">
+      <div ref={scrollRef} className="h-48 overflow-y-auto px-4 py-3 space-y-2 bg-white">
         {loading ? (
           <div className="flex items-center justify-center h-full">
-            <div className="w-6 h-6 border-2 border-amber-400 border-t-transparent rounded-full animate-spin-slow" />
+            <div className="w-6 h-6 border-2 border-red-500 border-t-transparent rounded-full animate-spin-slow" />
           </div>
         ) : messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
-            <p className="text-xs text-gray-500">{translate(lang, 'noChatMessages')}</p>
+            <p className="text-xs text-gray-400">{translate(lang, 'noChatMessages')}</p>
           </div>
         ) : (
           messages.map((msg) => (
             <div key={msg.id} className="flex flex-col gap-0.5">
               <div className="flex items-baseline gap-2">
-                <span className="text-xs font-semibold text-amber-400">{msg.user_name}</span>
-                <span className="text-[10px] text-gray-600">
+                <span className="text-xs font-semibold text-red-500">{msg.user_name}</span>
+                <span className="text-[10px] text-gray-300">
                   {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
-              <p className="text-xs text-gray-300 ml-2">{msg.message}</p>
+              <p className="text-xs text-gray-600 ml-2">{msg.message}</p>
             </div>
           ))
         )}
       </div>
 
-      <div className="flex items-center gap-2 px-3 py-3 border-t border-[#3A3A3A]">
+      <div className="flex items-center gap-2 px-3 py-3 border-t border-gray-200 bg-white">
         <input
           type="text"
           value={userName}
           onChange={(e) => setUserName(e.target.value)}
           placeholder={translate(lang, 'yourName')}
-          className="w-20 bg-[#2A2A2A] border border-[#3A3A3A] rounded-lg px-2 py-2 text-xs text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500/50"
+          className="w-20 bg-gray-50 border border-gray-200 rounded-lg px-2 py-2 text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:border-red-400"
         />
         <input
           type="text"
@@ -119,11 +119,11 @@ export default function LiveChat({ lang, venueId, venueName }: LiveChatProps) {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
           placeholder={translate(lang, 'sendMessage')}
-          className="flex-1 bg-[#2A2A2A] border border-[#3A3A3A] rounded-lg px-3 py-2 text-xs text-gray-100 placeholder-gray-500 focus:outline-none focus:border-amber-500/50"
+          className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:border-red-400"
         />
         <button
           onClick={sendMessage}
-          className="w-9 h-9 rounded-lg gold-btn flex items-center justify-center flex-shrink-0"
+          className="w-9 h-9 rounded-lg red-btn flex items-center justify-center flex-shrink-0"
         >
           <Send className="w-4 h-4" />
         </button>

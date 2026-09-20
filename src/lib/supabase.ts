@@ -52,10 +52,16 @@ export type Ad = {
   id: string;
   type: string;
   title: string;
+  title_ka: string | null;
+  title_ru: string | null;
   subtitle: string | null;
+  subtitle_ka: string | null;
+  subtitle_ru: string | null;
   image_url: string | null;
   venue_id: string | null;
   cta_text: string;
+  cta_ka: string | null;
+  cta_ru: string | null;
   active: boolean;
   created_at: string;
 };

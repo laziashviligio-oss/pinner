@@ -4,7 +4,7 @@ import {
   Users, TrendingUp, DollarSign, Trash2, BarChart3, MapPin,
 } from 'lucide-react';
 import type { Lang } from '@/lib/i18n';
-import { translate, getVenueName } from '@/lib/i18n';
+import { translate, getVenueName, getAdTitle } from '@/lib/i18n';
 import { supabase, type Venue, type Review, type ChatMessage, type Ad } from '@/lib/supabase';
 
 interface SuperAdminPanelProps {
@@ -212,7 +212,7 @@ export default function SuperAdminPanel({ lang, venues, onVenueUpdated }: SuperA
             <div key={ad.id} className="bg-[#2A2A2A] rounded-xl p-3 border border-[#3A3A3A] flex items-center gap-3">
               {ad.image_url && <img src={ad.image_url} alt="" className="w-12 h-12 rounded-lg object-cover" />}
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-200 truncate">{ad.title}</p>
+                <p className="text-sm font-medium text-gray-200 truncate">{getAdTitle(ad, lang)}</p>
                 <div className="flex items-center gap-2 mt-0.5">
                   <span className={`text-[10px] px-1.5 py-0.5 rounded ${ad.type === 'startup' ? 'bg-red-500/10 text-red-400' : 'bg-blue-500/10 text-blue-400'}`}>
                     {ad.type}

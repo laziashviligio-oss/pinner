@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Sparkles, ChevronRight } from 'lucide-react';
 import type { Lang } from '@/lib/i18n';
-import { translate } from '@/lib/i18n';
+import { translate, getAdTitle, getAdSubtitle } from '@/lib/i18n';
 import type { Ad } from '@/lib/supabase';
 
 interface AdCarouselProps {
@@ -37,8 +37,8 @@ export default function AdCarousel({ lang, ads, onAdClick }: AdCarouselProps) {
   return (
     <div className="px-4 pt-1 pb-2">
       <div className="flex items-center gap-1.5 mb-2">
-        <Sparkles className="w-3 h-3 text-amber-400" />
-        <span className="text-[10px] text-gray-500 font-medium uppercase tracking-wider">{translate(lang, 'sponsored')}</span>
+        <Sparkles className="w-3 h-3 text-red-500" />
+        <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">{translate(lang, 'sponsored')}</span>
       </div>
       <div
         ref={scrollRef}
@@ -49,22 +49,22 @@ export default function AdCarousel({ lang, ads, onAdClick }: AdCarouselProps) {
             key={ad.id}
             onClick={() => onAdClick(ad)}
             className={`relative flex-shrink-0 w-[280px] h-[120px] rounded-2xl overflow-hidden cursor-pointer transition-all ${
-              idx === currentIndex ? 'animate-glow border-2 border-amber-400' : 'border border-[#3A3A3A]'
+              idx === currentIndex ? 'border-2 border-red-500 shadow-lg shadow-red-500/20' : 'border border-gray-200'
             }`}
           >
             {ad.image_url && (
-              <img src={ad.image_url} alt={ad.title} className="absolute inset-0 w-full h-full object-cover" />
+              <img src={ad.image_url} alt={getAdTitle(ad, lang)} className="absolute inset-0 w-full h-full object-cover" />
             )}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
             <div className="absolute top-2 left-2">
               <span className="sponsored-badge">{translate(lang, 'sponsored')}</span>
             </div>
             <div className="absolute bottom-0 left-0 right-0 p-3">
-              <h3 className="text-sm font-bold text-white leading-tight mb-0.5 line-clamp-2">{ad.title}</h3>
-              {ad.subtitle && <p className="text-[11px] text-gray-300 line-clamp-1">{ad.subtitle}</p>}
+              <h3 className="text-sm font-bold text-white leading-tight mb-0.5 line-clamp-2">{getAdTitle(ad, lang)}</h3>
+              {getAdSubtitle(ad, lang) && <p className="text-[11px] text-gray-200 line-clamp-1">{getAdSubtitle(ad, lang)}</p>}
             </div>
-            <div className="absolute bottom-3 right-3 w-7 h-7 rounded-full bg-amber-400 flex items-center justify-center">
-              <ChevronRight className="w-4 h-4 text-[#121212]" />
+            <div className="absolute bottom-3 right-3 w-7 h-7 rounded-full bg-red-500 flex items-center justify-center">
+              <ChevronRight className="w-4 h-4 text-white" />
             </div>
           </div>
         ))}
@@ -76,7 +76,7 @@ export default function AdCarousel({ lang, ads, onAdClick }: AdCarouselProps) {
             <button
               key={idx}
               onClick={() => setCurrentIndex(idx)}
-              className={`h-1.5 rounded-full transition-all ${idx === currentIndex ? 'w-6 bg-amber-400' : 'w-1.5 bg-[#3A3A3A]'}`}
+              className={`h-1.5 rounded-full transition-all ${idx === currentIndex ? 'w-6 bg-red-500' : 'w-1.5 bg-gray-300'}`}
             />
           ))}
         </div>

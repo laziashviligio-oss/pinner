@@ -44,17 +44,17 @@ export default function FilterBar({
     <div className="px-4 py-3 space-y-2.5">
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-red-500" />
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={translate(lang, 'search')}
-          className="w-full bg-[#2A2A2A] border border-[#3A3A3A] rounded-xl pl-10 pr-10 py-2.5 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-amber-500/50 transition-colors"
+          className="w-full bg-white border-2 border-red-500 rounded-xl pl-10 pr-10 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all shadow-sm"
         />
         {search && (
           <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2">
-            <X className="w-4 h-4 text-gray-500 hover:text-gray-300" />
+            <X className="w-4 h-4 text-gray-400 hover:text-gray-600" />
           </button>
         )}
       </div>
@@ -65,10 +65,10 @@ export default function FilterBar({
           <button
             key={pill.value}
             onClick={() => setSearchPill(pill.value)}
-            className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
+            className={`flex items-center gap-1 px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
               searchPill === pill.value
-                ? 'bg-amber-500/15 border border-amber-500/40 text-amber-400'
-                : 'bg-[#2A2A2A] border border-[#3A3A3A] text-gray-400 hover:text-gray-200'
+                ? 'bg-red-600 border border-red-600 text-white shadow-sm'
+                : 'bg-white border border-red-500 text-red-600 hover:bg-red-50'
             }`}
           >
             {pill.icon && <span>{pill.icon}</span>}
@@ -159,7 +159,7 @@ export default function FilterBar({
       {hasActiveFilters && (
         <button
           onClick={onClear}
-          className="flex items-center justify-center gap-1.5 w-full py-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-medium hover:bg-amber-500/20 transition-colors"
+          className="flex items-center justify-center gap-1.5 w-full py-2 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-medium hover:bg-red-100 transition-colors"
         >
           <X className="w-3 h-3" />
           {translate(lang, 'clearFilters')}

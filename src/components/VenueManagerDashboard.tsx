@@ -4,7 +4,7 @@ import {
   Calendar, UtensilsCrossed, Users, Music, Sparkles, BarChart3, Armchair,
 } from 'lucide-react';
 import type { Lang } from '@/lib/i18n';
-import { translate, getVenueName } from '@/lib/i18n';
+import { translate, getVenueName, getAdTitle } from '@/lib/i18n';
 import { supabase, type Venue, type Ad, type EventItem, type Review } from '@/lib/supabase';
 
 interface VenueManagerDashboardProps {
@@ -61,9 +61,7 @@ export default function VenueManagerDashboard({ lang, venues, onVenueUpdated }: 
   async function createAd() {
     if (!selectedVenue || !adForm.title) return;
     const { data } = await supabase.from('ads').insert({
-      ...adForm,
-      venue_id: selectedVenue.id,
-      active: true,
+      ...adForm, venue_id: selectedVenue.id, active: true,
     }).select().single();
     if (data) {
       setAds(prev => [data, ...prev]);
@@ -85,10 +83,7 @@ export default function VenueManagerDashboard({ lang, venues, onVenueUpdated }: 
   async function createEvent() {
     if (!selectedVenue || !eventForm.title || !eventForm.event_date) return;
     const { data } = await supabase.from('events').insert({
-      venue_id: selectedVenue.id,
-      title: eventForm.title,
-      description: eventForm.description,
-      event_date: eventForm.event_date,
+      venue_id: selectedVenue.id, title: eventForm.title, description: eventForm.description, event_date: eventForm.event_date,
     }).select().single();
     if (data) {
       setEvents(prev => [...prev, data]);
@@ -103,33 +98,29 @@ export default function VenueManagerDashboard({ lang, venues, onVenueUpdated }: 
   }
 
   if (!selectedVenue) {
-    return <div className="flex items-center justify-center h-64 text-gray-500">{translate(lang, 'loading')}</div>;
+    return <div className="flex items-center justify-center h-64 text-gray-400">{translate(lang, 'loading')}</div>;
   }
 
   const avgFood = reviews.length ? (reviews.reduce((s, r) => s + r.rating_food, 0) / reviews.length).toFixed(1) : '0.0';
   const avgService = reviews.length ? (reviews.reduce((s, r) => s + r.rating_service, 0) / reviews.length).toFixed(1) : '0.0';
   const avgMusic = reviews.length ? (reviews.reduce((s, r) => s + r.rating_music, 0) / reviews.length).toFixed(1) : '0.0';
 
+  const inputClass = "w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/15";
+
   return (
     <div className="px-4 py-4 space-y-4 max-w-2xl mx-auto">
       {/* Venue Selector */}
       <div className="flex items-center gap-2">
-        <Building2 className="w-5 h-5 text-amber-400" />
-        <select
-          value={selectedVenueId}
-          onChange={(e) => setSelectedVenueId(e.target.value)}
-          className="flex-1 dropdown-select"
-        >
-          {venues.map(v => (
-            <option key={v.id} value={v.id}>{getVenueName(v, lang)}</option>
-          ))}
+        <Building2 className="w-5 h-5 text-red-500" />
+        <select value={selectedVenueId} onChange={(e) => setSelectedVenueId(e.target.value)} className="flex-1 dropdown-select">
+          {venues.map(v => <option key={v.id} value={v.id}>{getVenueName(v, lang)}</option>)}
         </select>
       </div>
 
       {/* Vibe Status Control */}
-      <div className="bg-[#2A2A2A] rounded-2xl p-4 border border-[#3A3A3A]">
-        <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-          <TrendingUp className="w-4 h-4 text-amber-400" />
+      <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm">
+        <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+          <TrendingUp className="w-4 h-4 text-red-500" />
           {translate(lang, 'updateVibe')}
         </h3>
         <div className="flex items-center gap-2">
@@ -142,24 +133,20 @@ export default function VenueManagerDashboard({ lang, venues, onVenueUpdated }: 
               key={value}
               onClick={() => updateVibeStatus(value)}
               className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border transition-all ${
-                selectedVenue.vibe_status === value
-                  ? 'border-amber-400 bg-amber-500/10'
-                  : 'border-[#3A3A3A] bg-[#1a1a1a] hover:border-[#555]'
+                selectedVenue.vibe_status === value ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50 hover:border-gray-300'
               }`}
             >
               <span className={`w-3 h-3 rounded-full ${color}`} />
-              <span className={`text-xs font-medium ${selectedVenue.vibe_status === value ? 'text-amber-400' : 'text-gray-400'}`}>
-                {label}
-              </span>
+              <span className={`text-xs font-medium ${selectedVenue.vibe_status === value ? 'text-red-600' : 'text-gray-500'}`}>{label}</span>
             </button>
           ))}
         </div>
       </div>
 
       {/* Table Status Quick Update */}
-      <div className="bg-[#2A2A2A] rounded-2xl p-4 border border-[#3A3A3A]">
-        <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-          <Armchair className="w-4 h-4 text-amber-400" />
+      <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm">
+        <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+          <Armchair className="w-4 h-4 text-red-500" />
           {translate(lang, 'updateTableStatus')}
         </h3>
         <div className="flex items-center gap-2">
@@ -172,24 +159,20 @@ export default function VenueManagerDashboard({ lang, venues, onVenueUpdated }: 
               key={value}
               onClick={() => updateTableStatus(value, count)}
               className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border transition-all ${
-                selectedVenue.table_status === value
-                  ? 'border-amber-400 bg-amber-500/10'
-                  : 'border-[#3A3A3A] bg-[#1a1a1a] hover:border-[#555]'
+                selectedVenue.table_status === value ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50 hover:border-gray-300'
               }`}
             >
               <span className={`w-3 h-3 rounded-full ${color}`} />
-              <span className={`text-xs font-medium ${selectedVenue.table_status === value ? 'text-amber-400' : 'text-gray-400'}`}>
-                {label}
-              </span>
+              <span className={`text-xs font-medium ${selectedVenue.table_status === value ? 'text-red-600' : 'text-gray-500'}`}>{label}</span>
             </button>
           ))}
         </div>
       </div>
 
       {/* Rating Analytics */}
-      <div className="bg-[#2A2A2A] rounded-2xl p-4 border border-[#3A3A3A]">
-        <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-          <BarChart3 className="w-4 h-4 text-amber-400" />
+      <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm">
+        <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+          <BarChart3 className="w-4 h-4 text-red-500" />
           {translate(lang, 'ratingAnalytics')}
         </h3>
         <div className="grid grid-cols-4 gap-2">
@@ -199,28 +182,28 @@ export default function VenueManagerDashboard({ lang, venues, onVenueUpdated }: 
             { label: translate(lang, 'avgService'), value: avgService, icon: Users },
             { label: translate(lang, 'avgMusic'), value: avgMusic, icon: Music },
           ].map(({ label, value, icon: Icon }) => (
-            <div key={label} className="bg-[#1a1a1a] rounded-xl p-3 text-center">
-              <Icon className="w-4 h-4 text-amber-400 mx-auto mb-1" />
-              <div className="text-lg font-bold text-amber-400">{value}</div>
-              <div className="text-[9px] text-gray-500 leading-tight">{label}</div>
+            <div key={label} className="bg-gray-50 rounded-xl p-3 text-center border border-gray-200">
+              <Icon className="w-4 h-4 text-red-500 mx-auto mb-1" />
+              <div className="text-lg font-bold text-red-500">{value}</div>
+              <div className="text-[9px] text-gray-400 leading-tight">{label}</div>
             </div>
           ))}
         </div>
         <div className="mt-2 text-center">
-          <span className="text-xs text-gray-500">{translate(lang, 'totalRatings')}: <b className="text-gray-300">{selectedVenue.total_ratings}</b></span>
+          <span className="text-xs text-gray-400">{translate(lang, 'totalRatings')}: <b className="text-gray-700">{selectedVenue.total_ratings}</b></span>
         </div>
       </div>
 
       {/* Ad Management */}
-      <div className="bg-[#2A2A2A] rounded-2xl p-4 border border-[#3A3A3A]">
+      <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-amber-400" />
+          <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-red-500" />
             {translate(lang, 'manageAds')}
           </h3>
           <button
             onClick={() => setShowAdForm(!showAdForm)}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-medium hover:bg-amber-500/20 transition-colors"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-red-50 border border-red-200 text-red-600 text-xs font-medium hover:bg-red-100 transition-colors"
           >
             <Plus className="w-3 h-3" />
             {translate(lang, 'createAd')}
@@ -228,70 +211,36 @@ export default function VenueManagerDashboard({ lang, venues, onVenueUpdated }: 
         </div>
 
         {showAdForm && (
-          <div className="space-y-2 mb-3 bg-[#1a1a1a] rounded-xl p-3 border border-[#3A3A3A] animate-scale-in">
-            <select
-              value={adForm.type}
-              onChange={(e) => setAdForm({ ...adForm, type: e.target.value })}
-              className="w-full dropdown-select"
-            >
+          <div className="space-y-2 mb-3 bg-gray-50 rounded-xl p-3 border border-gray-200 animate-scale-in">
+            <select value={adForm.type} onChange={(e) => setAdForm({ ...adForm, type: e.target.value })} className="w-full dropdown-select">
               <option value="carousel">{translate(lang, 'manageCarousel')}</option>
               <option value="startup">{translate(lang, 'manageStartupAds')}</option>
             </select>
-            <input
-              type="text"
-              value={adForm.title}
-              onChange={(e) => setAdForm({ ...adForm, title: e.target.value })}
-              placeholder={translate(lang, 'adTitle')}
-              className="w-full bg-[#2A2A2A] border border-[#3A3A3A] rounded-lg px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-amber-500/50"
-            />
-            <input
-              type="text"
-              value={adForm.subtitle}
-              onChange={(e) => setAdForm({ ...adForm, subtitle: e.target.value })}
-              placeholder={translate(lang, 'adSubtitle')}
-              className="w-full bg-[#2A2A2A] border border-[#3A3A3A] rounded-lg px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-amber-500/50"
-            />
-            <input
-              type="text"
-              value={adForm.image_url}
-              onChange={(e) => setAdForm({ ...adForm, image_url: e.target.value })}
-              placeholder={translate(lang, 'adImage')}
-              className="w-full bg-[#2A2A2A] border border-[#3A3A3A] rounded-lg px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-amber-500/50"
-            />
-            <input
-              type="text"
-              value={adForm.cta_text}
-              onChange={(e) => setAdForm({ ...adForm, cta_text: e.target.value })}
-              placeholder={translate(lang, 'adCta')}
-              className="w-full bg-[#2A2A2A] border border-[#3A3A3A] rounded-lg px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-amber-500/50"
-            />
-            <button onClick={createAd} className="w-full gold-btn py-2 rounded-lg text-sm font-semibold">
-              {translate(lang, 'create')}
-            </button>
+            <input type="text" value={adForm.title} onChange={(e) => setAdForm({ ...adForm, title: e.target.value })} placeholder={translate(lang, 'adTitle')} className={inputClass} />
+            <input type="text" value={adForm.subtitle} onChange={(e) => setAdForm({ ...adForm, subtitle: e.target.value })} placeholder={translate(lang, 'adSubtitle')} className={inputClass} />
+            <input type="text" value={adForm.image_url} onChange={(e) => setAdForm({ ...adForm, image_url: e.target.value })} placeholder={translate(lang, 'adImage')} className={inputClass} />
+            <input type="text" value={adForm.cta_text} onChange={(e) => setAdForm({ ...adForm, cta_text: e.target.value })} placeholder={translate(lang, 'adCta')} className={inputClass} />
+            <button onClick={createAd} className="w-full red-btn py-2 rounded-lg text-sm font-semibold">{translate(lang, 'create')}</button>
           </div>
         )}
 
         <div className="space-y-2">
           {ads.length === 0 ? (
-            <p className="text-center text-xs text-gray-500 py-4">{translate(lang, 'noData')}</p>
+            <p className="text-center text-xs text-gray-400 py-4">{translate(lang, 'noData')}</p>
           ) : ads.map(ad => (
-            <div key={ad.id} className="flex items-center gap-3 bg-[#1a1a1a] rounded-xl p-3 border border-[#3A3A3A]">
+            <div key={ad.id} className="flex items-center gap-3 bg-gray-50 rounded-xl p-3 border border-gray-200">
               {ad.image_url && <img src={ad.image_url} alt="" className="w-12 h-12 rounded-lg object-cover flex-shrink-0" />}
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-200 truncate">{ad.title}</p>
+                <p className="text-sm font-medium text-gray-700 truncate">{getAdTitle(ad, lang)}</p>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded ${ad.type === 'startup' ? 'bg-red-500/10 text-red-400' : 'bg-blue-500/10 text-blue-400'}`}>
-                    {ad.type}
-                  </span>
-                  <span className={`text-[10px] ${ad.active ? 'text-green-400' : 'text-gray-500'}`}>
-                    {ad.active ? translate(lang, 'activeAds') : translate(lang, 'inactiveAds')}
-                  </span>
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded ${ad.type === 'startup' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'}`}>{ad.type}</span>
+                  <span className={`text-[10px] ${ad.active ? 'text-green-600' : 'text-gray-400'}`}>{ad.active ? translate(lang, 'activeAds') : translate(lang, 'inactiveAds')}</span>
                 </div>
               </div>
-              <button onClick={() => toggleAd(ad)} className="text-gray-400 hover:text-amber-400">
+              <button onClick={() => toggleAd(ad)} className="text-gray-400 hover:text-red-500">
                 {ad.active ? <ToggleRight className="w-6 h-6" /> : <ToggleLeft className="w-6 h-6" />}
               </button>
-              <button onClick={() => deleteAd(ad.id)} className="text-gray-500 hover:text-red-400">
+              <button onClick={() => deleteAd(ad.id)} className="text-gray-400 hover:text-red-500">
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>
@@ -300,15 +249,15 @@ export default function VenueManagerDashboard({ lang, venues, onVenueUpdated }: 
       </div>
 
       {/* Events Management */}
-      <div className="bg-[#2A2A2A] rounded-2xl p-4 border border-[#3A3A3A]">
+      <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-amber-400" />
+          <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-red-500" />
             {translate(lang, 'events')}
           </h3>
           <button
             onClick={() => setShowEventForm(!showEventForm)}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-medium hover:bg-amber-500/20 transition-colors"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-red-50 border border-red-200 text-red-600 text-xs font-medium hover:bg-red-100 transition-colors"
           >
             <Plus className="w-3 h-3" />
             {translate(lang, 'addEvent')}
@@ -316,46 +265,27 @@ export default function VenueManagerDashboard({ lang, venues, onVenueUpdated }: 
         </div>
 
         {showEventForm && (
-          <div className="space-y-2 mb-3 bg-[#1a1a1a] rounded-xl p-3 border border-[#3A3A3A] animate-scale-in">
-            <input
-              type="text"
-              value={eventForm.title}
-              onChange={(e) => setEventForm({ ...eventForm, title: e.target.value })}
-              placeholder={translate(lang, 'eventName')}
-              className="w-full bg-[#2A2A2A] border border-[#3A3A3A] rounded-lg px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-amber-500/50"
-            />
-            <input
-              type="text"
-              value={eventForm.description}
-              onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })}
-              placeholder={translate(lang, 'eventDesc')}
-              className="w-full bg-[#2A2A2A] border border-[#3A3A3A] rounded-lg px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-amber-500/50"
-            />
-            <input
-              type="date"
-              value={eventForm.event_date}
-              onChange={(e) => setEventForm({ ...eventForm, event_date: e.target.value })}
-              className="w-full bg-[#2A2A2A] border border-[#3A3A3A] rounded-lg px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500/50"
-            />
-            <button onClick={createEvent} className="w-full gold-btn py-2 rounded-lg text-sm font-semibold">
-              {translate(lang, 'addEventBtn')}
-            </button>
+          <div className="space-y-2 mb-3 bg-gray-50 rounded-xl p-3 border border-gray-200 animate-scale-in">
+            <input type="text" value={eventForm.title} onChange={(e) => setEventForm({ ...eventForm, title: e.target.value })} placeholder={translate(lang, 'eventName')} className={inputClass} />
+            <input type="text" value={eventForm.description} onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })} placeholder={translate(lang, 'eventDesc')} className={inputClass} />
+            <input type="date" value={eventForm.event_date} onChange={(e) => setEventForm({ ...eventForm, event_date: e.target.value })} className={inputClass} />
+            <button onClick={createEvent} className="w-full red-btn py-2 rounded-lg text-sm font-semibold">{translate(lang, 'addEventBtn')}</button>
           </div>
         )}
 
         <div className="space-y-2">
           {events.length === 0 ? (
-            <p className="text-center text-xs text-gray-500 py-4">{translate(lang, 'noEvents')}</p>
+            <p className="text-center text-xs text-gray-400 py-4">{translate(lang, 'noEvents')}</p>
           ) : events.map(event => (
-            <div key={event.id} className="flex items-center gap-3 bg-[#1a1a1a] rounded-xl p-3 border border-[#3A3A3A]">
-              <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center flex-shrink-0">
-                <Calendar className="w-4 h-4 text-amber-400" />
+            <div key={event.id} className="flex items-center gap-3 bg-gray-50 rounded-xl p-3 border border-gray-200">
+              <div className="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center flex-shrink-0">
+                <Calendar className="w-4 h-4 text-red-500" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-200 truncate">{event.title}</p>
-                <span className="text-[10px] text-amber-400/70">{new Date(event.event_date).toLocaleDateString()}</span>
+                <p className="text-sm font-medium text-gray-700 truncate">{event.title}</p>
+                <span className="text-[10px] text-red-400">{new Date(event.event_date).toLocaleDateString()}</span>
               </div>
-              <button onClick={() => deleteEvent(event.id)} className="text-gray-500 hover:text-red-400">
+              <button onClick={() => deleteEvent(event.id)} className="text-gray-400 hover:text-red-500">
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>

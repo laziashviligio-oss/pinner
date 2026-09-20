@@ -40,11 +40,11 @@ export default function VenueDetailModal({ lang, venue, onClose, onDirections, o
   const tableLabel = venue.table_status === 'available' ? translate(lang, 'tablesAvailable')
     : venue.table_status === 'limited' ? translate(lang, 'fewTablesLeft') : translate(lang, 'fullyBooked');
   const tableColorClass = venue.table_status === 'available'
-    ? 'bg-green-500/10 border-green-500/30 text-green-400'
+    ? 'bg-green-50 border-green-200 text-green-600'
     : venue.table_status === 'limited'
-    ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
-    : 'bg-red-500/10 border-red-500/30 text-red-400';
-  const tableDotClass = venue.table_status === 'available' ? 'bg-green-400' : venue.table_status === 'limited' ? 'bg-amber-400' : 'bg-red-400';
+    ? 'bg-amber-50 border-amber-200 text-amber-600'
+    : 'bg-red-50 border-red-200 text-red-600';
+  const tableDotClass = venue.table_status === 'available' ? 'bg-green-500' : venue.table_status === 'limited' ? 'bg-amber-500' : 'bg-red-500';
 
   useEffect(() => {
     setReviewerName(localStorage.getItem('pinner_username') || 'Guest');
@@ -115,41 +115,41 @@ export default function VenueDetailModal({ lang, venue, onClose, onDirections, o
   };
 
   return (
-    <div className="fixed inset-0 z-[90] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in p-0 sm:p-4">
-      <div className="relative w-full max-w-lg bg-[#1a1a1a] rounded-t-3xl sm:rounded-3xl overflow-hidden border-t sm:border border-[#3A3A3A] max-h-[90vh] flex flex-col animate-slide-up sm:animate-scale-in">
+    <div className="fixed inset-0 z-[90] flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm animate-fade-in p-0 sm:p-4">
+      <div className="relative w-full max-w-lg bg-white rounded-t-3xl sm:rounded-3xl overflow-hidden border-t sm:border border-gray-200 max-h-[90vh] flex flex-col animate-slide-up sm:animate-scale-in">
         {/* Header image */}
         <div className="relative h-40 flex-shrink-0">
           {venue.image_url && (
             <img src={venue.image_url} alt={name} className="w-full h-full object-cover" />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-white to-transparent" />
           <button
             onClick={onClose}
-            className="absolute top-3 right-3 w-9 h-9 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/80 transition-colors"
+            className="absolute top-3 right-3 w-9 h-9 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/80 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
           <div className="absolute bottom-3 left-4 right-4">
             <div className="flex items-center gap-2 mb-1">
               <span className={`vibe-dot vibe-${venue.vibe_status}`} />
-              <span className="text-xs text-white font-medium">{vibeLabel}</span>
+              <span className="text-xs text-gray-900 font-medium">{vibeLabel}</span>
               <div className="ml-auto rating-badge flex items-center gap-1">
-                <Star className="w-3 h-3 text-amber-400" fill="currentColor" />
+                <Star className="w-3 h-3 text-red-500" fill="currentColor" />
                 <span className="text-sm">{venue.rating_overall.toFixed(1)}</span>
-                <span className="text-[10px] text-gray-400">/10</span>
+                <span className="text-[10px] text-gray-500">/10</span>
               </div>
             </div>
-            <h2 className="text-xl font-bold text-white leading-tight">{name}</h2>
+            <h2 className="text-xl font-bold text-gray-900 leading-tight">{name}</h2>
             <div className="flex items-center gap-1 mt-0.5">
-              <MapPin className="w-3 h-3 text-gray-400" />
-              <span className="text-xs text-gray-400">{districtLabel}</span>
-              {venue.address && <span className="text-xs text-gray-500">· {venue.address}</span>}
+              <MapPin className="w-3 h-3 text-gray-500" />
+              <span className="text-xs text-gray-500">{districtLabel}</span>
+              {venue.address && <span className="text-xs text-gray-400">· {venue.address}</span>}
             </div>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center gap-1 px-4 pt-3 border-b border-[#3A3A3A] flex-shrink-0">
+        <div className="flex items-center gap-1 px-4 pt-3 border-b border-gray-200 flex-shrink-0">
           {([
             ['about', translate(lang, 'about')],
             ['reviews', `${translate(lang, 'reviews')} (${reviews.length})`],
@@ -160,7 +160,7 @@ export default function VenueDetailModal({ lang, venue, onClose, onDirections, o
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`px-3 py-2 text-xs font-medium border-b-2 transition-colors ${
-                activeTab === tab ? 'border-amber-400 text-amber-400' : 'border-transparent text-gray-500 hover:text-gray-300'
+                activeTab === tab ? 'text-red-500 border-red-500' : 'border-transparent text-gray-400 hover:text-gray-300'
               }`}
             >
               {label}
@@ -172,7 +172,7 @@ export default function VenueDetailModal({ lang, venue, onClose, onDirections, o
         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
           {activeTab === 'about' && (
             <>
-              <p className="text-sm text-gray-300 leading-relaxed">{desc}</p>
+              <p className="text-sm text-gray-600 leading-relaxed">{desc}</p>
 
               {/* Rating breakdown */}
               <div className="grid grid-cols-3 gap-2">
@@ -181,10 +181,10 @@ export default function VenueDetailModal({ lang, venue, onClose, onDirections, o
                   { label: translate(lang, 'serviceStaff'), value: venue.rating_service, icon: Users },
                   { label: translate(lang, 'musicAtmosphere'), value: venue.rating_music, icon: Music },
                 ].map(({ label, value, icon: Icon }) => (
-                  <div key={label} className="bg-[#2A2A2A] rounded-xl p-3 text-center">
-                    <Icon className="w-4 h-4 text-amber-400 mx-auto mb-1" />
-                    <div className="text-lg font-bold text-amber-400">{value.toFixed(1)}</div>
-                    <div className="text-[10px] text-gray-500">{label}</div>
+                  <div key={label} className="bg-gray-50 rounded-xl p-3 text-center">
+                    <Icon className="w-4 h-4 text-red-500 mx-auto mb-1" />
+                    <div className="text-lg font-bold text-red-500">{value.toFixed(1)}</div>
+                    <div className="text-[10px] text-gray-400">{label}</div>
                   </div>
                 ))}
               </div>
@@ -199,8 +199,8 @@ export default function VenueDetailModal({ lang, venue, onClose, onDirections, o
                     : f === 'Jazz' ? translate(lang, 'jazz')
                     : f === 'Family Friendly' ? translate(lang, 'familyFriendly') : f;
                   return (
-                    <span key={f} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#2A2A2A] border border-[#3A3A3A] text-xs text-gray-300">
-                      <Icon className="w-3 h-3 text-amber-400" />
+                    <span key={f} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-50 border border-gray-200 text-xs text-gray-700">
+                      <Icon className="w-3 h-3 text-red-500" />
                       {label}
                     </span>
                   );
@@ -222,20 +222,20 @@ export default function VenueDetailModal({ lang, venue, onClose, onDirections, o
               {/* Actions */}
               <div className="flex items-center gap-2">
                 {venue.table_status !== 'full' && venue.phone && (
-                  <a href={`tel:${venue.phone}`} className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl gold-btn text-sm">
+                  <a href={`tel:${venue.phone}`} className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl red-btn text-sm">
                     <Armchair className="w-4 h-4" />
                     {translate(lang, 'reserveTable')}
                   </a>
                 )}
                 <button
                   onClick={() => onDirections(venue)}
-                  className={`${venue.table_status !== 'full' && venue.phone ? '' : 'flex-1 '}flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#2A2A2A] border border-[#3A3A3A] text-amber-400 text-sm font-medium hover:bg-[#333] transition-colors`}
+                  className={`${venue.table_status !== 'full' && venue.phone ? '' : 'flex-1 '}flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-red-500 text-sm font-medium hover:bg-gray-100 transition-colors`}
                 >
                   <Navigation className="w-4 h-4" />
                   {translate(lang, 'getDirections')}
                 </button>
                 {venue.phone && (
-                  <a href={`tel:${venue.phone}`} className="w-11 h-11 rounded-xl bg-[#2A2A2A] border border-[#3A3A3A] flex items-center justify-center text-amber-400 hover:bg-[#333] transition-colors">
+                  <a href={`tel:${venue.phone}`} className="w-11 h-11 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center text-red-500 hover:bg-gray-100 transition-colors">
                     <Phone className="w-4 h-4" />
                   </a>
                 )}
@@ -243,8 +243,8 @@ export default function VenueDetailModal({ lang, venue, onClose, onDirections, o
                   onClick={() => onCheckIn(venue)}
                   className={`px-4 h-11 rounded-xl flex items-center justify-center gap-1.5 text-sm font-medium border transition-colors ${
                     checkedIn
-                      ? 'bg-green-500/10 border-green-500/30 text-green-400'
-                      : 'bg-[#2A2A2A] border-[#3A3A3A] text-gray-300 hover:bg-[#333]'
+                      ? 'bg-green-50 border-green-200 text-green-600'
+                      : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
                   }`}
                 >
                   <CheckCircle2 className="w-4 h-4" />
@@ -258,21 +258,21 @@ export default function VenueDetailModal({ lang, venue, onClose, onDirections, o
             <>
               <button
                 onClick={() => setShowRatingForm(!showRatingForm)}
-                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl gold-btn text-sm"
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl red-btn text-sm"
               >
                 <Star className="w-4 h-4" />
                 {translate(lang, 'rateVenue')}
               </button>
 
               {showRatingForm && (
-                <div className="bg-[#2A2A2A] rounded-xl p-4 space-y-3 border border-[#3A3A3A] animate-scale-in">
+                <div className="bg-gray-50 rounded-xl p-4 space-y-3 border border-gray-200 animate-scale-in">
                   <div>
-                    <label className="text-xs text-gray-400 font-medium">{translate(lang, 'yourName')}</label>
+                    <label className="text-xs text-gray-500 font-medium">{translate(lang, 'yourName')}</label>
                     <input
                       type="text"
                       value={reviewerName}
                       onChange={(e) => setReviewerName(e.target.value)}
-                      className="w-full mt-1 bg-[#1a1a1a] border border-[#3A3A3A] rounded-lg px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-amber-500/50"
+                      className="w-full mt-1 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-red-300"
                     />
                   </div>
                   {[
@@ -282,8 +282,8 @@ export default function VenueDetailModal({ lang, venue, onClose, onDirections, o
                   ].map(({ label, value, set }) => (
                     <div key={label}>
                       <div className="flex items-center justify-between mb-1">
-                        <label className="text-xs text-gray-400 font-medium">{label}</label>
-                        <span className="text-sm font-bold text-amber-400">{value.toFixed(1)}/10</span>
+                        <label className="text-xs text-gray-500 font-medium">{label}</label>
+                        <span className="text-sm font-bold text-red-500">{value.toFixed(1)}/10</span>
                       </div>
                       <input
                         type="range"
@@ -292,23 +292,23 @@ export default function VenueDetailModal({ lang, venue, onClose, onDirections, o
                         step="0.5"
                         value={value}
                         onChange={(e) => set(parseFloat(e.target.value))}
-                        className="w-full accent-amber-500"
+                        className="w-full accent-red-500"
                       />
                     </div>
                   ))}
                   <div>
-                    <label className="text-xs text-gray-400 font-medium">{translate(lang, 'writeReview')}</label>
+                    <label className="text-xs text-gray-500 font-medium">{translate(lang, 'writeReview')}</label>
                     <textarea
                       value={reviewText}
                       onChange={(e) => setReviewText(e.target.value)}
                       rows={3}
-                      className="w-full mt-1 bg-[#1a1a1a] border border-[#3A3A3A] rounded-lg px-3 py-2 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:border-amber-500/50 resize-none"
+                      className="w-full mt-1 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-red-300 resize-none"
                     />
                   </div>
                   <button
                     onClick={submitReview}
                     disabled={submitting}
-                    className="w-full gold-btn py-2.5 rounded-xl text-sm font-semibold disabled:opacity-50"
+                    className="w-full red-btn py-2.5 rounded-xl text-sm font-semibold disabled:opacity-50"
                   >
                     {submitting ? translate(lang, 'loading') : translate(lang, 'submitRating')}
                   </button>
@@ -317,36 +317,36 @@ export default function VenueDetailModal({ lang, venue, onClose, onDirections, o
 
               <div className="space-y-3">
                 {reviews.length === 0 ? (
-                  <p className="text-center text-sm text-gray-500 py-8">{translate(lang, 'noReviewsToModerate')}</p>
+                  <p className="text-center text-sm text-gray-400 py-8">{translate(lang, 'noReviewsToModerate')}</p>
                 ) : (
                   reviews.map((review) => (
-                    <div key={review.id} className="bg-[#2A2A2A] rounded-xl p-3 border border-[#3A3A3A]">
+                    <div key={review.id} className="bg-gray-50 rounded-xl p-3 border border-gray-200">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-full bg-amber-500/20 flex items-center justify-center text-xs font-bold text-amber-400">
+                          <div className="w-7 h-7 rounded-full bg-red-100 flex items-center justify-center text-xs font-bold text-red-500">
                             {review.user_name[0]?.toUpperCase()}
                           </div>
-                          <span className="text-sm font-semibold text-gray-200">{review.user_name}</span>
-                          <span className="text-[10px] text-green-400 flex items-center gap-0.5">
+                          <span className="text-sm font-semibold text-gray-700">{review.user_name}</span>
+                          <span className="text-[10px] text-green-600 flex items-center gap-0.5">
                             <CheckCircle2 className="w-3 h-3" />
                             {translate(lang, 'verified')}
                           </span>
                         </div>
                         <div className="rating-badge flex items-center gap-1">
-                          <Star className="w-3 h-3 text-amber-400" fill="currentColor" />
+                          <Star className="w-3 h-3 text-red-500" fill="currentColor" />
                           <span className="text-xs">{review.rating_overall.toFixed(1)}</span>
                         </div>
                       </div>
-                      <div className="flex gap-3 mb-2 text-[10px] text-gray-500">
-                        <span>{translate(lang, 'foodDrinks')}: <b className="text-gray-300">{review.rating_food.toFixed(1)}</b></span>
-                        <span>{translate(lang, 'serviceStaff')}: <b className="text-gray-300">{review.rating_service.toFixed(1)}</b></span>
-                        <span>{translate(lang, 'musicAtmosphere')}: <b className="text-gray-300">{review.rating_music.toFixed(1)}</b></span>
+                      <div className="flex gap-3 mb-2 text-[10px] text-gray-400">
+                        <span>{translate(lang, 'foodDrinks')}: <b className="text-gray-600">{review.rating_food.toFixed(1)}</b></span>
+                        <span>{translate(lang, 'serviceStaff')}: <b className="text-gray-600">{review.rating_service.toFixed(1)}</b></span>
+                        <span>{translate(lang, 'musicAtmosphere')}: <b className="text-gray-600">{review.rating_music.toFixed(1)}</b></span>
                       </div>
-                      {review.text && <p className="text-sm text-gray-300 leading-relaxed">{review.text}</p>}
+                      {review.text && <p className="text-sm text-gray-600 leading-relaxed">{review.text}</p>}
                       {review.photo_url && (
                         <img src={review.photo_url} alt="review" className="mt-2 rounded-lg max-h-32 object-cover" />
                       )}
-                      <span className="text-[10px] text-gray-600 mt-1 block">
+                      <span className="text-[10px] text-gray-300 mt-1 block">
                         {new Date(review.created_at).toLocaleDateString()}
                       </span>
                     </div>
@@ -359,18 +359,18 @@ export default function VenueDetailModal({ lang, venue, onClose, onDirections, o
           {activeTab === 'events' && (
             <div className="space-y-3">
               {events.length === 0 ? (
-                <p className="text-center text-sm text-gray-500 py-8">{translate(lang, 'noEvents')}</p>
+                <p className="text-center text-sm text-gray-400 py-8">{translate(lang, 'noEvents')}</p>
               ) : (
                 events.map((event) => (
-                  <div key={event.id} className="bg-[#2A2A2A] rounded-xl p-3 border border-[#3A3A3A]">
+                  <div key={event.id} className="bg-gray-50 rounded-xl p-3 border border-gray-200">
                     <div className="flex items-start gap-3">
-                      <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex flex-col items-center justify-center flex-shrink-0">
-                        <Calendar className="w-4 h-4 text-amber-400" />
+                      <div className="w-12 h-12 rounded-xl bg-red-50 border border-red-200 flex flex-col items-center justify-center flex-shrink-0">
+                        <Calendar className="w-4 h-4 text-red-500" />
                       </div>
                       <div className="flex-1">
-                        <h4 className="text-sm font-semibold text-white">{event.title}</h4>
-                        {event.description && <p className="text-xs text-gray-400 mt-0.5">{event.description}</p>}
-                        <span className="text-[10px] text-amber-400/70 mt-1 block">
+                        <h4 className="text-sm font-semibold text-gray-900">{event.title}</h4>
+                        {event.description && <p className="text-xs text-gray-500 mt-0.5">{event.description}</p>}
+                        <span className="text-[10px] text-red-400 mt-1 block">
                           {new Date(event.event_date).toLocaleDateString()}
                         </span>
                       </div>

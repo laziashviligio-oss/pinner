@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { List, Map as MapIcon, Sun, Cloud, CloudRain } from 'lucide-react';
 import type { Lang } from '@/lib/i18n';
 import { translate } from '@/lib/i18n';
@@ -16,9 +16,11 @@ import VenueManagerDashboard from '@/components/VenueManagerDashboard';
 import SuperAdminPanel from '@/components/SuperAdminPanel';
 import MenuModal from '@/components/MenuModal';
 import ReservationModal from '@/components/ReservationModal';
+import TaxiModal from '@/components/TaxiModal';
+import BottomNav, { type NavTab } from '@/components/BottomNav';
 
 export default function App() {
-  const [lang, setLang] = useState<Lang>('en');
+  const [lang, setLang] = useState<Lang>('ka');
   const [role, setRole] = useState<Role>('client');
   const [venues, setVenues] = useState<Venue[]>([]);
   const [ads, setAds] = useState<Ad[]>([]);
@@ -37,13 +39,17 @@ export default function App() {
 
   // UI state
   const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [navTab, setNavTab] = useState<NavTab>('home');
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
   const [menuVenue, setMenuVenue] = useState<Venue | null>(null);
   const [reservationVenue, setReservationVenue] = useState<Venue | null>(null);
+  const [reservationTime, setReservationTime] = useState<string | undefined>(undefined);
+  const [taxiVenue, setTaxiVenue] = useState<Venue | null>(null);
   const [checkedInVenues, setCheckedInVenues] = useState<Set<string>>(new Set());
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [weather, setWeather] = useState({ temp: 24, condition: 'sunny', icon: '☀️' });
   const [showWeatherAlert, setShowWeatherAlert] = useState(false);
+  const searchInputRef = useRef<HTMLDivElement>(null);
 
   // Load data
   const loadVenues = useCallback(async () => {
@@ -184,10 +190,15 @@ export default function App() {
     setDeferredPrompt(null);
   }
 
+  function handleBookTimeSlot(venue: Venue, time: string) {
+    setReservationVenue(venue);
+    setReservationTime(time);
+  }
+
   const visitedVenues = venues.filter(v => checkedInVenues.has(v.id));
 
   return (
-    <div className="min-h-screen bg-[#121212] text-gray-100 flex flex-col">
+    <div className="min-h-screen bg-gray-50 text-gray-900 flex flex-col">
       <Header
         lang={lang}
         setLang={setLang}
@@ -199,8 +210,8 @@ export default function App() {
 
       {/* Weather Alert Banner */}
       {showWeatherAlert && weather.condition === 'sunny' && (
-        <div className="px-4 py-2 bg-gradient-to-r from-amber-500/10 to-transparent border-b border-amber-500/20 animate-slide-down">
-          <div className="flex items-center gap-2 text-xs text-amber-400">
+        <div className="px-4 py-2 bg-gradient-to-r from-amber-50 to-transparent border-b border-amber-200 animate-slide-down">
+          <div className="flex items-center gap-2 text-xs text-amber-700">
             <Sun className="w-4 h-4" />
             <span>{translate(lang, 'weatherRooftopTip')}</span>
           </div>
@@ -237,7 +248,7 @@ export default function App() {
               <button
                 onClick={() => setViewMode('list')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                  viewMode === 'list' ? 'bg-amber-500/10 border border-amber-500/30 text-amber-400' : 'bg-[#2A2A2A] border border-[#3A3A3A] text-gray-400'
+                  viewMode === 'list' ? 'bg-red-50 border border-red-200 text-red-600' : 'bg-white border border-gray-200 text-gray-500'
                 }`}
               >
                 <List className="w-3.5 h-3.5" />
@@ -246,13 +257,13 @@ export default function App() {
               <button
                 onClick={() => setViewMode('map')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                  viewMode === 'map' ? 'bg-amber-500/10 border border-amber-500/30 text-amber-400' : 'bg-[#2A2A2A] border border-[#3A3A3A] text-gray-400'
+                  viewMode === 'map' ? 'bg-red-50 border border-red-200 text-red-600' : 'bg-white border border-gray-200 text-gray-500'
                 }`}
               >
                 <MapIcon className="w-3.5 h-3.5" />
                 {translate(lang, 'mapView')}
               </button>
-              <span className="ml-auto text-xs text-gray-500">
+              <span className="ml-auto text-xs text-gray-400">
                 {sortedVenues.length} {translate(lang, 'venue')}
               </span>
             </div>
@@ -268,8 +279,8 @@ export default function App() {
               <div className="px-4 space-y-3 pb-4">
                 {sortedVenues.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-16 text-center">
-                    <p className="text-sm text-gray-500 mb-3">{translate(lang, 'noVenues')}</p>
-                    <button onClick={handleClearFilters} className="px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 text-sm font-medium hover:bg-amber-500/20 transition-colors">
+                    <p className="text-sm text-gray-400 mb-3">{translate(lang, 'noVenues')}</p>
+                    <button onClick={handleClearFilters} className="px-4 py-2 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm font-medium hover:bg-red-100 transition-colors">
                       {translate(lang, 'clearFilters')}
                     </button>
                   </div>
@@ -282,8 +293,10 @@ export default function App() {
                       onClick={() => setSelectedVenue(venue)}
                       onDirections={() => handleDirections(venue)}
                       onViewMenu={() => setMenuVenue(venue)}
-                      onBookTable={() => setReservationVenue(venue)}
+                      onBookTable={() => { setReservationTime(undefined); setReservationVenue(venue); }}
                       onOrderDelivery={() => setMenuVenue(venue)}
+                      onOrderTaxi={() => setTaxiVenue(venue)}
+                      onBookTimeSlot={(time) => handleBookTimeSlot(venue, time)}
                       distance={haversineDistance(TBILISI_CENTER.lat, TBILISI_CENTER.lng, venue.lat, venue.lng)}
                     />
                   ))
@@ -292,16 +305,16 @@ export default function App() {
                 {/* My Visits Section */}
                 {visitedVenues.length > 0 && (
                   <div className="pt-4">
-                    <h3 className="text-sm font-semibold text-white mb-2 flex items-center gap-2">
-                      <span className="w-1 h-4 rounded-full bg-amber-400" />
+                    <h3 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                      <span className="w-1 h-4 rounded-full bg-red-500" />
                       {translate(lang, 'myVisits')} ({visitedVenues.length})
                     </h3>
                     <div className="space-y-2">
                       {visitedVenues.map(venue => (
-                        <div key={venue.id} className="flex items-center gap-3 bg-[#2A2A2A] rounded-xl p-3 border border-[#3A3A3A]">
+                        <div key={venue.id} className="flex items-center gap-3 bg-white rounded-xl p-3 border border-gray-200 shadow-sm">
                           {venue.image_url && <img src={venue.image_url} alt="" className="w-10 h-10 rounded-lg object-cover" />}
-                          <span className="text-sm text-gray-200 flex-1 truncate">{venue.name}</span>
-                          <span className="text-xs text-amber-400">★ {venue.rating_overall.toFixed(1)}</span>
+                          <span className="text-sm text-gray-700 flex-1 truncate">{venue.name}</span>
+                          <span className="text-xs text-red-500 font-semibold">★ {venue.rating_overall.toFixed(1)}</span>
                         </div>
                       ))}
                     </div>
@@ -322,6 +335,19 @@ export default function App() {
           <SuperAdminPanel lang={lang} venues={venues} onVenueUpdated={loadVenues} />
         )}
       </main>
+
+      {/* Bottom Navigation */}
+      {role === 'client' && (
+        <BottomNav
+          lang={lang}
+          activeTab={navTab}
+          onTabChange={setNavTab}
+          onSearchFocus={() => {
+            const el = document.querySelector('input[type="text"]') as HTMLInputElement | null;
+            if (el) el.focus();
+          }}
+        />
+      )}
 
       {/* Modals */}
       {selectedVenue && (
@@ -346,7 +372,10 @@ export default function App() {
         <MenuModal lang={lang} venue={menuVenue} onClose={() => setMenuVenue(null)} />
       )}
       {reservationVenue && (
-        <ReservationModal lang={lang} venue={reservationVenue} onClose={() => setReservationVenue(null)} />
+        <ReservationModal lang={lang} venue={reservationVenue} preselectedTime={reservationTime} onClose={() => { setReservationVenue(null); setReservationTime(undefined); }} />
+      )}
+      {taxiVenue && (
+        <TaxiModal lang={lang} venue={taxiVenue} onClose={() => setTaxiVenue(null)} />
       )}
 
       <InstallPrompt
