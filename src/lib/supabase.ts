@@ -101,5 +101,6 @@ export type MenuItem = {
   description_ka: string | null;
   description_ru: string | null;
   price: number;
+  image_url: string | null;
   created_at: string;
 };

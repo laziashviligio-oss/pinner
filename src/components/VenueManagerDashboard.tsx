@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import {
   Building2, Star, TrendingUp, Plus, Trash2, ToggleRight, ToggleLeft,
   Calendar, UtensilsCrossed, Users, Music, Sparkles, BarChart3, Armchair,
+  Pencil, X,
 } from 'lucide-react';
 import type { Lang } from '@/lib/i18n';
 import { translate, getVenueName, getAdTitle } from '@/lib/i18n';
-import { supabase, type Venue, type Ad, type EventItem, type Review } from '@/lib/supabase';
+import { supabase, type Venue, type Ad, type EventItem, type Review, type MenuItem } from '@/lib/supabase';
 
 interface VenueManagerDashboardProps {
   lang: Lang;
@@ -13,15 +14,28 @@ interface VenueManagerDashboardProps {
   onVenueUpdated: () => void;
 }
 
+const MENU_CATEGORIES = ['appetizer', 'main', 'drink', 'dessert'] as const;
+
+function catLabel(lang: Lang, cat: string): string {
+  if (cat === 'appetizer') return translate(lang, 'catAppetizer');
+  if (cat === 'main') return translate(lang, 'catMain');
+  if (cat === 'drink') return translate(lang, 'catDrink');
+  return translate(lang, 'catDessert');
+}
+
 export default function VenueManagerDashboard({ lang, venues, onVenueUpdated }: VenueManagerDashboardProps) {
   const [selectedVenueId, setSelectedVenueId] = useState<string>('');
   const [ads, setAds] = useState<Ad[]>([]);
   const [events, setEvents] = useState<EventItem[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [showAdForm, setShowAdForm] = useState(false);
   const [showEventForm, setShowEventForm] = useState(false);
+  const [showMenuForm, setShowMenuForm] = useState(false);
+  const [editingMenuItem, setEditingMenuItem] = useState<MenuItem | null>(null);
   const [adForm, setAdForm] = useState({ title: '', subtitle: '', image_url: '', cta_text: 'Learn More', type: 'carousel' });
   const [eventForm, setEventForm] = useState({ title: '', description: '', event_date: '' });
+  const [menuForm, setMenuForm] = useState({ name: '', category: 'main', price: '', description: '', image_url: '' });
 
   const selectedVenue = venues.find(v => v.id === selectedVenueId) || venues[0];
 
@@ -34,14 +48,16 @@ export default function VenueManagerDashboard({ lang, venues, onVenueUpdated }: 
   useEffect(() => {
     if (!selectedVenueId) return;
     async function loadData() {
-      const [adsRes, eventsRes, reviewsRes] = await Promise.all([
+      const [adsRes, eventsRes, reviewsRes, menuRes] = await Promise.all([
         supabase.from('ads').select('*').eq('venue_id', selectedVenueId).order('created_at', { ascending: false }),
         supabase.from('events').select('*').eq('venue_id', selectedVenueId).order('event_date', { ascending: true }),
         supabase.from('reviews').select('*').eq('venue_id', selectedVenueId).order('created_at', { ascending: false }),
+        supabase.from('menu_items').select('*').eq('venue_id', selectedVenueId).order('category, created_at', { ascending: true }),
       ]);
       setAds(adsRes.data || []);
       setEvents(eventsRes.data || []);
       setReviews(reviewsRes.data || []);
+      setMenuItems(menuRes.data || []);
     }
     loadData();
   }, [selectedVenueId]);
@@ -95,6 +111,55 @@ export default function VenueManagerDashboard({ lang, venues, onVenueUpdated }: 
   async function deleteEvent(id: string) {
     await supabase.from('events').delete().eq('id', id);
     setEvents(prev => prev.filter(e => e.id !== id));
+  }
+
+  function openAddMenuItem() {
+    setEditingMenuItem(null);
+    setMenuForm({ name: '', category: 'main', price: '', description: '', image_url: '' });
+    setShowMenuForm(true);
+  }
+
+  function openEditMenuItem(item: MenuItem) {
+    setEditingMenuItem(item);
+    setMenuForm({
+      name: item.name,
+      category: item.category,
+      price: String(item.price),
+      description: item.description ?? '',
+      image_url: item.image_url ?? '',
+    });
+    setShowMenuForm(true);
+  }
+
+  async function saveMenuItem() {
+    if (!selectedVenue || !menuForm.name) return;
+    const payload = {
+      venue_id: selectedVenue.id,
+      name: menuForm.name,
+      category: menuForm.category,
+      price: parseFloat(menuForm.price) || 0,
+      description: menuForm.description || null,
+      image_url: menuForm.image_url || null,
+    };
+    if (editingMenuItem) {
+      const { data } = await supabase.from('menu_items').update(payload).eq('id', editingMenuItem.id).select().single();
+      if (data) {
+        setMenuItems(prev => prev.map(m => m.id === data.id ? data : m));
+      }
+    } else {
+      const { data } = await supabase.from('menu_items').insert(payload).select().single();
+      if (data) {
+        setMenuItems(prev => [...prev, data]);
+      }
+    }
+    setShowMenuForm(false);
+    setEditingMenuItem(null);
+    setMenuForm({ name: '', category: 'main', price: '', description: '', image_url: '' });
+  }
+
+  async function deleteMenuItem(id: string) {
+    await supabase.from('menu_items').delete().eq('id', id);
+    setMenuItems(prev => prev.filter(m => m.id !== id));
   }
 
   if (!selectedVenue) {
@@ -191,6 +256,83 @@ export default function VenueManagerDashboard({ lang, venues, onVenueUpdated }: 
         </div>
         <div className="mt-2 text-center">
           <span className="text-xs text-gray-400">{translate(lang, 'totalRatings')}: <b className="text-gray-700">{selectedVenue.total_ratings}</b></span>
+        </div>
+      </div>
+
+      {/* Menu Management */}
+      <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+            <UtensilsCrossed className="w-4 h-4 text-red-500" />
+            {translate(lang, 'manageMenu')}
+          </h3>
+          <button
+            onClick={openAddMenuItem}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-red-50 border border-red-200 text-red-600 text-xs font-medium hover:bg-red-100 transition-colors"
+          >
+            <Plus className="w-3 h-3" />
+            {translate(lang, 'addMenuItem')}
+          </button>
+        </div>
+
+        {showMenuForm && (
+          <div className="space-y-2.5 mb-3 bg-gray-50 rounded-xl p-3 border border-gray-200 animate-scale-in">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-semibold text-gray-700">
+                {editingMenuItem ? translate(lang, 'editMenuItem') : translate(lang, 'addMenuItem')}
+              </span>
+              <button onClick={() => { setShowMenuForm(false); setEditingMenuItem(null); }} className="text-gray-400 hover:text-gray-600">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <input type="text" value={menuForm.name} onChange={(e) => setMenuForm({ ...menuForm, name: e.target.value })} placeholder={translate(lang, 'menuItemName')} className={inputClass} />
+            <select value={menuForm.category} onChange={(e) => setMenuForm({ ...menuForm, category: e.target.value })} className="w-full dropdown-select">
+              {MENU_CATEGORIES.map(c => <option key={c} value={c}>{catLabel(lang, c)}</option>)}
+            </select>
+            <input type="number" min="0" step="0.5" value={menuForm.price} onChange={(e) => setMenuForm({ ...menuForm, price: e.target.value })} placeholder={translate(lang, 'menuItemPrice')} className={inputClass} />
+            <input type="text" value={menuForm.description} onChange={(e) => setMenuForm({ ...menuForm, description: e.target.value })} placeholder={translate(lang, 'menuItemDescription')} className={inputClass} />
+            <input type="text" value={menuForm.image_url} onChange={(e) => setMenuForm({ ...menuForm, image_url: e.target.value })} placeholder={translate(lang, 'menuItemImage')} className={inputClass} />
+            {menuForm.image_url && (
+              <img src={menuForm.image_url} alt="preview" className="w-full h-24 rounded-lg object-cover border border-gray-200" />
+            )}
+            <button onClick={saveMenuItem} className="w-full red-btn py-2 rounded-lg text-sm font-semibold">{translate(lang, 'saveMenuItem')}</button>
+          </div>
+        )}
+
+        <div className="space-y-2">
+          {menuItems.length === 0 ? (
+            <p className="text-center text-xs text-gray-400 py-4">{translate(lang, 'noMenuItems')}</p>
+          ) : MENU_CATEGORIES.map(cat => {
+            const items = menuItems.filter(m => m.category === cat);
+            if (items.length === 0) return null;
+            return (
+              <div key={cat} className="space-y-1.5">
+                <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-1">{catLabel(lang, cat)}</span>
+                {items.map(item => (
+                  <div key={item.id} className="flex items-center gap-3 bg-gray-50 rounded-xl p-2.5 border border-gray-200">
+                    {item.image_url ? (
+                      <img src={item.image_url} alt="" className="w-11 h-11 rounded-lg object-cover flex-shrink-0" />
+                    ) : (
+                      <div className="w-11 h-11 rounded-lg bg-red-50 flex items-center justify-center flex-shrink-0">
+                        <UtensilsCrossed className="w-4 h-4 text-red-400" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-700 truncate">{item.name}</p>
+                      {item.description && <p className="text-[10px] text-gray-400 truncate">{item.description}</p>}
+                    </div>
+                    <span className="text-sm font-bold text-red-500 flex-shrink-0">{item.price} ₾</span>
+                    <button onClick={() => openEditMenuItem(item)} className="text-gray-400 hover:text-red-500 flex-shrink-0">
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                    <button onClick={() => deleteMenuItem(item.id)} className="text-gray-400 hover:text-red-500 flex-shrink-0">
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            );
+          })}
         </div>
       </div>
 
