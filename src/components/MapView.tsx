@@ -15,6 +15,7 @@ export default function MapView({ lang, venues, onVenueClick }: MapViewProps) {
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const markersRef = useRef<L.Marker[]>([]);
+  const baseLayersRef = useRef<Record<string, L.TileLayer>>({});
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -26,9 +27,26 @@ export default function MapView({ lang, venues, onVenueClick }: MapViewProps) {
       attributionControl: true,
     });
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap &copy; CARTO',
+    const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 19,
+    });
+
+    const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: '&copy; Esri, Maxar, Earthstar Geographics',
+      maxZoom: 19,
+    });
+
+    streetLayer.addTo(map);
+
+    baseLayersRef.current = {
+      'Street': streetLayer,
+      'Satellite': satelliteLayer,
+    };
+
+    L.control.layers(baseLayersRef.current, undefined, {
+      position: 'topright',
+      collapsed: false,
     }).addTo(map);
 
     mapRef.current = map;
