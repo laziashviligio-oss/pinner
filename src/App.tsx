@@ -328,7 +328,7 @@ export default function App() {
         )}
 
         {role === 'manager' && (
-          <VenueManagerDashboard lang={lang} venues={venues.filter(v => v.approved)} onVenueUpdated={loadVenues} />
+          <VenueManagerDashboard lang={lang} venues={venues} onVenueUpdated={loadVenues} />
         )}
 
         {role === 'admin' && (

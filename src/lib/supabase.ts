@@ -32,6 +32,7 @@ export type Venue = {
   sponsored: boolean;
   table_status: string;
   available_tables_count: number | null;
+  manager_id: string | null;
   created_at: string;
 };
 
